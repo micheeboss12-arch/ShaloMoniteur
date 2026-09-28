@@ -1,0 +1,69 @@
+html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Présence École du Dimanche</title>
+<style>
+body{font-family:Arial;padding:15px;background:#f5f5ff}
+h1{color:#4a2c82;text-align:center}
+.card{background:white;padding:15px;border-radius:12px;margin-bottom:10px;box-shadow:0 2px 5px #ccc}
+button{background:#4a2c82;color:white;border:none;padding:12px;width:100%;border-radius:8px;font-size:16px;margin-top:10px}
+input{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #ccc}
+.enfant{display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #eee}
+</style>
+</head>
+<body>
+<h1>📖 École du Dimanche</h1>
+<div class="card">
+<input type="date" id="dateJour">
+<input type="text" id="nomEnfant" placeholder="Nom de l'enfant">
+<button onclick="ajouterEnfant()">+ Ajouter enfant</button>
+</div>
+<div class="card" id="liste"></div>
+<div class="card">
+<button onclick="enregistrer()">✅ Enregistrer présence</button>
+<button onclick="exporter()" style="background:green">📤 Exporter en Excel</button>
+</div>
+<script>
+let enfants = JSON.parse(localStorage.getItem('enfants')||'[]');
+let presences = JSON.parse(localStorage.getItem('presences')||'{}');
+document.getElementById('dateJour').valueAsDate = new Date();
+function ajouterEnfant(){
+  let n=document.getElementById('nomEnfant').value.trim();
+  if(!n) return; enfants.push(n); localStorage.setItem('enfants',JSON.stringify(enfants));
+  document.getElementById('nomEnfant').value=''; afficher();
+}
+function afficher(){
+  let html=''; enfants.forEach((nom,i)=>{
+    let coche = (presences[document.getElementById('dateJour').value]||[]).includes(nom)? 'checked' : '';
+    html+=`<div class="enfant"><span>${nom}</span><div><input type="checkbox" ${coche} onchange="toggle('${nom}')"></div></div>`;
+  });
+  document.getElementById('liste').innerHTML=html||'Aucun enfant';
+}
+function toggle(nom){
+  let d=document.getElementById('dateJour').value;
+  if(!presences[d]) presences[d]=[];
+  if(presences[d].includes(nom)) presences[d]=presences[d].filter(x=>x!=nom);
+  else presences[d].push(nom);
+}
+function enregistrer(){
+  localStorage.setItem('presences',JSON.stringify(presences));
+  alert('Présence enregistrée pour '+document.getElementById('dateJour').value);
+}
+function exporter(){
+  let csv="Date;Nom;Present\n";
+  for(let date in presences){
+    enfants.forEach(nom=>{
+      csv+=`${date};${nom};${presences[date].includes(nom)?'Oui':'Non'}\n`;
+    });
+  }
+  let blob=new Blob([csv],{type:'text/csv'});
+  let a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='presence_ecole_dimanche.csv'; a.click();
+}
+afficher();
+</script>
+</body>
+</html>
