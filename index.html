@@ -1,69 +1,554 @@
-html
+X ```html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Présence École du Dimanche</title>
+
+<title>Présence - École du dimanche</title>
+
 <style>
-body{font-family:Arial;padding:15px;background:#f5f5ff}
-h1{color:#4a2c82;text-align:center}
-.card{background:white;padding:15px;border-radius:12px;margin-bottom:10px;box-shadow:0 2px 5px #ccc}
-button{background:#4a2c82;color:white;border:none;padding:12px;width:100%;border-radius:8px;font-size:16px;margin-top:10px}
-input{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #ccc}
-.enfant{display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #eee}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f3f7f4;
+    color: #222;
+}
+
+header {
+    background: #168a55;
+    color: white;
+    padding: 20px 15px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 22px;
+    margin-bottom: 5px;
+}
+
+header p {
+    font-size: 14px;
+}
+
+.container {
+    width: 95%;
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 18px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+input, select {
+    margin-bottom: 12px;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-primary {
+    background: #168a55;
+    color: white;
+}
+
+.btn-danger {
+    background: #d9534f;
+    color: white;
+}
+
+.btn-secondary {
+    background: #f3b83f;
+    color: #222;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.stat {
+    padding: 12px 5px;
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+}
+
+.present {
+    background: #28a745;
+}
+
+.absent {
+    background: #dc3545;
+}
+
+.excused {
+    background: #f0ad4e;
+}
+
+.stat strong {
+    display: block;
+    font-size: 24px;
+}
+
+.child {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.child-name {
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 17px;
+}
+
+.status-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+}
+
+.status-buttons button {
+    font-size: 13px;
+    padding: 10px 5px;
+}
+
+.btn-present {
+    background: #28a745;
+    color: white;
+}
+
+.btn-absent {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-excused {
+    background: #f0ad4e;
+    color: white;
+}
+
+.active {
+    outline: 3px solid #222;
+}
+
+.child-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.child-actions button {
+    padding: 8px;
+    font-size: 13px;
+}
+
+.history-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.empty {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+    font-size: 13px;
+}
 </style>
 </head>
+
 <body>
-<h1>📖 École du Dimanche</h1>
-<div class="card">
-<input type="date" id="dateJour">
-<input type="text" id="nomEnfant" placeholder="Nom de l'enfant">
-<button onclick="ajouterEnfant()">+ Ajouter enfant</button>
+
+<header>
+    <h1>👧 École du dimanche</h1>
+    <p>Contrôle de présence des enfants</p>
+</header>
+
+<div class="container">
+
+    <!-- DATE -->
+    <div class="card">
+        <label for="date">📅 Date de la séance</label>
+        <input type="date" id="date">
+
+        <div class="stats">
+            <div class="stat present">
+                <strong id="totalPresent">0</strong>
+                Présents
+            </div>
+
+            <div class="stat absent">
+                <strong id="totalAbsent">0</strong>
+                Absents
+            </div>
+
+            <div class="stat excused">
+                <strong id="totalExcused">0</strong>
+                Excusés
+            </div>
+        </div>
+    </div>
+
+    <!-- AJOUTER ENFANT -->
+    <div class="card">
+        <h2>➕ Ajouter un enfant</h2>
+        <br>
+
+        <input
+            type="text"
+            id="childName"
+            placeholder="Nom et prénom de l'enfant">
+
+        <button class="btn-primary" onclick="addChild()">
+            Ajouter l'enfant
+        </button>
+    </div>
+
+    <!-- LISTE -->
+    <div class="card">
+        <h2>👥 Liste des enfants</h2>
+        <br>
+
+        <div id="childrenList"></div>
+    </div>
+
+    <!-- HISTORIQUE -->
+    <div class="card">
+        <h2>📊 Historique</h2>
+        <br>
+
+        <div id="history"></div>
+    </div>
+
 </div>
-<div class="card" id="liste"></div>
-<div class="card">
-<button onclick="enregistrer()">✅ Enregistrer présence</button>
-<button onclick="exporter()" style="background:green">📤 Exporter en Excel</button>
-</div>
+
+<footer>
+    Application de gestion de présence<br>
+    École du dimanche
+</footer>
+
 <script>
-let enfants = JSON.parse(localStorage.getItem('enfants')||'[]');
-let presences = JSON.parse(localStorage.getItem('presences')||'{}');
-document.getElementById('dateJour').valueAsDate = new Date();
-function ajouterEnfant(){
-  let n=document.getElementById('nomEnfant').value.trim();
-  if(!n) return; enfants.push(n); localStorage.setItem('enfants',JSON.stringify(enfants));
-  document.getElementById('nomEnfant').value=''; afficher();
-}
-function afficher(){
-  let html=''; enfants.forEach((nom,i)=>{
-    let coche = (presences[document.getElementById('dateJour').value]||[]).includes(nom)? 'checked' : '';
-    html+=`<div class="enfant"><span>${nom}</span><div><input type="checkbox" ${coche} onchange="toggle('${nom}')"></div></div>`;
-  });
-  document.getElementById('liste').innerHTML=html||'Aucun enfant';
-}
-function toggle(nom){
-  let d=document.getElementById('dateJour').value;
-  if(!presences[d]) presences[d]=[];
-  if(presences[d].includes(nom)) presences[d]=presences[d].filter(x=>x!=nom);
-  else presences[d].push(nom);
-}
-function enregistrer(){
-  localStorage.setItem('presences',JSON.stringify(presences));
-  alert('Présence enregistrée pour '+document.getElementById('dateJour').value);
-}
-function exporter(){
-  let csv="Date;Nom;Present\n";
-  for(let date in presences){
-    enfants.forEach(nom=>{
-      csv+=`${date};${nom};${presences[date].includes(nom)?'Oui':'Non'}\n`;
+
+// ===============================
+// DONNÉES
+// ===============================
+
+let children = JSON.parse(
+    localStorage.getItem("children") || "[]"
+);
+
+let attendance = JSON.parse(
+    localStorage.getItem("attendance") || "{}"
+);
+
+// ===============================
+// DATE DU JOUR
+// ===============================
+
+const dateInput = document.getElementById("date");
+
+let today = new Date();
+
+let yyyy = today.getFullYear();
+let mm = String(today.getMonth() + 1).padStart(2, "0");
+let dd = String(today.getDate()).padStart(2, "0");
+
+dateInput.value = `${yyyy}-${mm}-${dd}`;
+
+dateInput.addEventListener("change", render);
+
+// ===============================
+// AJOUTER UN ENFANT
+// ===============================
+
+function addChild() {
+
+    const input = document.getElementById("childName");
+
+    const name = input.value.trim();
+
+    if (!name) {
+        alert("Veuillez saisir le nom de l'enfant.");
+        return;
+    }
+
+    children.push({
+        id: Date.now(),
+        name: name
     });
-  }
-  let blob=new Blob([csv],{type:'text/csv'});
-  let a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download='presence_ecole_dimanche.csv'; a.click();
+
+    localStorage.setItem(
+        "children",
+        JSON.stringify(children)
+    );
+
+    input.value = "";
+
+    render();
 }
-afficher();
+
+// ===============================
+// SUPPRIMER UN ENFANT
+// ===============================
+
+function deleteChild(id) {
+
+    if (!confirm("Supprimer cet enfant ?")) {
+        return;
+    }
+
+    children = children.filter(
+        child => child.id !== id
+    );
+
+    localStorage.setItem(
+        "children",
+        JSON.stringify(children)
+    );
+
+    render();
+}
+
+// ===============================
+// MARQUER PRÉSENCE
+// ===============================
+
+function setStatus(id, status) {
+
+    const date = dateInput.value;
+
+    if (!attendance[date]) {
+        attendance[date] = {};
+    }
+
+    attendance[date][id] = status;
+
+    localStorage.setItem(
+        "attendance",
+        JSON.stringify(attendance)
+    );
+
+    render();
+}
+
+// ===============================
+// AFFICHER LES ENFANTS
+// ===============================
+
+function renderChildren() {
+
+    const container =
+        document.getElementById("childrenList");
+
+    container.innerHTML = "";
+
+    if (children.length === 0) {
+
+        container.innerHTML =
+            '<div class="empty">Aucun enfant enregistré.</div>';
+
+        return;
+    }
+
+    const date = dateInput.value;
+
+    children.forEach(child => {
+
+        const status =
+            attendance[date]?.[child.id] || "";
+
+        const div =
+            document.createElement("div");
+
+        div.className = "child";
+
+        div.innerHTML = `
+
+            <div class="child-name">
+                👤 ${child.name}
+            </div>
+
+            <div class="status-buttons">
+
+                <button
+                    class="btn-present ${status === "present" ? "active" : ""}"
+                    onclick="setStatus(${child.id}, 'present')">
+                    ✅ Présent
+                </button>
+
+                <button
+                    class="btn-absent ${status === "absent" ? "active" : ""}"
+                    onclick="setStatus(${child.id}, 'absent')">
+                    ❌ Absent
+                </button>
+
+                <button
+                    class="btn-excused ${status === "excused" ? "active" : ""}"
+                    onclick="setStatus(${child.id}, 'excused')">
+                    🟡 Excusé
+                </button>
+
+            </div>
+
+            <div class="child-actions">
+
+                <button
+                    class="btn-danger"
+                    onclick="deleteChild(${child.id})">
+                    🗑️ Supprimer
+                </button>
+
+            </div>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+// ===============================
+// STATISTIQUES
+// ===============================
+
+function updateStats() {
+
+    const date = dateInput.value;
+
+    let present = 0;
+    let absent = 0;
+    let excused = 0;
+
+    children.forEach(child => {
+
+        const status =
+            attendance[date]?.[child.id];
+
+        if (status === "present") present++;
+
+        if (status === "absent") absent++;
+
+        if (status === "excused") excused++;
+    });
+
+    document.getElementById("totalPresent")
+        .textContent = present;
+
+    document.getElementById("totalAbsent")
+        .textContent = absent;
+
+    document.getElementById("totalExcused")
+        .textContent = excused;
+}
+
+// ===============================
+// HISTORIQUE
+// ===============================
+
+function renderHistory() {
+
+    const container =
+        document.getElementById("history");
+
+    container.innerHTML = "";
+
+    const dates =
+        Object.keys(attendance).sort().reverse();
+
+    if (dates.length === 0) {
+
+        container.innerHTML =
+            '<div class="empty">Aucun historique.</div>';
+
+        return;
+    }
+
+    dates.forEach(date => {
+
+        let present = 0;
+        let absent = 0;
+        let excused = 0;
+
+        children.forEach(child => {
+
+            const status =
+                attendance[date]?.[child.id];
+
+            if (status === "present") present++;
+
+            if (status === "absent") absent++;
+
+            if (status === "excused") excused++;
+        });
+
+        const div =
+            document.createElement("div");
+
+        div.className = "history-item";
+
+        div.innerHTML = `
+            <strong>📅 ${date}</strong><br>
+            ✅ ${present} présents |
+            ❌ ${absent} absents |
+            🟡 ${excused} excusés
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+// ===============================
+// AFFICHAGE GLOBAL
+// ===============================
+
+function render() {
+
+    renderChildren();
+
+    updateStats();
+
+    renderHistory();
+}
+
+render();
+
 </script>
+
 </body>
 </html>
+```
